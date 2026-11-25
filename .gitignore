@@ -1,0 +1,20 @@
+# Dependencias y compilaciones
+target/
+node_modules/
+dist/
+.angular/
+out/
+
+# IDE y sistema
+.idea/
+*.iml
+nbproject/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Secretos y registros (nunca subir contraseñas)
+.env
+.env.*
+!.env.example
+*.log
