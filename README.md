@@ -16,9 +16,9 @@ Proyecto académico UTP · Desarrollo Web Integrado · sección 34385 · Avance 
 
 ## Demo desplegada
 
-- Frontend: `https://REEMPLAZAR-FRONTEND.up.railway.app`
-- Backend (API): `https://REEMPLAZAR-BACKEND.up.railway.app/api`
-- Repositorio: `https://github.com/REEMPLAZAR-USUARIO/REEMPLAZAR-REPO`
+- Frontend: `https://observant-tranquility-production-5f23c66d.up.railway.app`
+- Backend (API): `https://sistema-denuncias-maxuhle-production.up.railway.app/api`
+- Repositorio: `https://github.com/sebastiansantinotuerosfajardo-ui/sistema-denuncias-maxuhle`
 
 ### Usuarios de demostración
 
