@@ -1,0 +1,804 @@
+{
+  "info": {
+    "name": "Denuncias API - Avance 2",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "basic",
+    "basic": [
+      {
+        "key": "username",
+        "value": "{{admin_user}}",
+        "type": "string"
+      },
+      {
+        "key": "password",
+        "value": "{{admin_pass}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "admin_user",
+      "value": "admin"
+    },
+    {
+      "key": "admin_pass",
+      "value": "admin123"
+    },
+    {
+      "key": "denuncia_id",
+      "value": "1"
+    },
+    {
+      "key": "denuncia_id_2",
+      "value": "2"
+    }
+  ],
+  "item": [
+    {
+      "name": "A. CRUD y persistencia (ADMIN)",
+      "item": [
+        {
+          "name": "1. Crear denuncia con protocolo (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDenuncia\": \"MALTRATO_PSICOLOGICO\",\n  \"descripcion\": \"Caso de prueba: presunto maltrato psicológico por parte de un docente.\",\n  \"nombreDenunciante\": \"Denunciante de prueba\",\n  \"nombreAfectado\": \"Estudiante de prueba - 3ro de secundaria\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.collectionVariables.set('denuncia_id', j.id);",
+                  "pm.test('Protocolo activado', function () { pm.expect(j.protocoloActivado).to.eql(true); pm.expect(j.estado).to.eql('PROTOCOLO_ACTIVADO'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Crear denuncia sin protocolo (ADMIN)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDenuncia\": \"CONVIVENCIA\",\n  \"descripcion\": \"Caso de prueba: conflicto de convivencia entre estudiantes.\",\n  \"nombreDenunciante\": \"Denunciante de prueba\",\n  \"nombreAfectado\": \"Estudiante de prueba - 2do de secundaria\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "var j = pm.response.json();",
+                  "pm.collectionVariables.set('denuncia_id_2', j.id);",
+                  "pm.test('Estado RECIBIDA', function () { pm.expect(j.protocoloActivado).to.eql(false); pm.expect(j.estado).to.eql('RECIBIDA'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Listar denuncias",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Obtener denuncia por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Actualizar descripción",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"descripcion\": \"Descripción ampliada tras la entrevista inicial.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Crear con datos inválidos (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDenuncia\": \"\",\n  \"descripcion\": \"\",\n  \"nombreAfectado\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 400', function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "B. Consultas JPQL (ADMIN)",
+      "item": [
+        {
+          "name": "7. JPQL - Denuncias por estado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/estado/PROTOCOLO_ACTIVADO"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Devuelve un arreglo', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. JPQL - Protocolos pendientes (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/protocolo-pendiente"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. JPQL - Estadísticas por tipo (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/estadisticas/por-tipo"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "C. Transacción y reglas de negocio (ADMIN)",
+      "item": [
+        {
+          "name": "10. Transacción - Pasar a EN_ATENCION (estado + seguimiento)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}/seguimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoNuevo\": \"EN_ATENCION\",\n  \"observacion\": \"Se citó a los involucrados.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });",
+                  "pm.test('Responsable registrado', function () { pm.expect(pm.response.json().responsable).to.eql('admin'); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11. Historial de seguimientos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}/seguimientos"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });",
+                  "pm.test('Hay 2 o más registros', function () { pm.expect(pm.response.json().length).to.be.at.least(2); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12. Regla: protocolo no vuelve a RECIBIDA (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}/seguimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoNuevo\": \"RECIBIDA\",\n  \"observacion\": \"Intento de revertir.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "13. Regla: cerrar sin observación (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id_2}}/seguimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoNuevo\": \"CERRADA\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "14. Cerrar con observación (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id_2}}/seguimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoNuevo\": \"CERRADA\",\n  \"observacion\": \"Conflicto resuelto con mediación del tutor.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "15. Regla: denuncia cerrada no admite cambios (409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id_2}}/seguimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoNuevo\": \"EN_ATENCION\",\n  \"observacion\": \"Reabrir.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 409', function () { pm.response.to.have.status(409); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "D. Seguridad por rol",
+      "item": [
+        {
+          "name": "16. Endpoint público sin credenciales (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/publico/info",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17. Endpoint protegido sin credenciales (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias",
+            "auth": {
+              "type": "noauth"
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18. OPERADOR lista denuncias (200)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "operador",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "operador123",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 200', function () { pm.response.to.have.status(200); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "19. OPERADOR crea denuncia (201)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tipoDenuncia\": \"CONVIVENCIA\",\n  \"descripcion\": \"Caso de prueba: conflicto de convivencia entre estudiantes.\",\n  \"nombreDenunciante\": \"Denunciante de prueba\",\n  \"nombreAfectado\": \"Estudiante de prueba - 2do de secundaria\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "operador",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "operador123",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 201', function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "20. OPERADOR intenta eliminar (403)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "operador",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "operador123",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "21. OPERADOR intenta registrar seguimiento (403)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}/seguimientos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"estadoNuevo\": \"EN_ATENCION\",\n  \"observacion\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "operador",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "operador123",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "22. OPERADOR intenta ver estadísticas (403)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/estadisticas/por-tipo",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "operador",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "operador123",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 403', function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "23. Credenciales incorrectas (401)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias",
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {
+                  "key": "username",
+                  "value": "admin",
+                  "type": "string"
+                },
+                {
+                  "key": "password",
+                  "value": "incorrecta",
+                  "type": "string"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 401', function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "E. Eliminación (ADMIN)",
+      "item": [
+        {
+          "name": "24. ADMIN elimina denuncia (204)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 204', function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "25. Verificar eliminación (404)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/api/denuncias/{{denuncia_id}}"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status 404', function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
